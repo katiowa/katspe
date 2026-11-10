@@ -1,0 +1,7 @@
+{
+  "id": "dashboard",
+  "displayName": "Dashboard",
+  "priority": 10,
+  "version": "0.1.0",
+  "description": "Contributes the project dashboard topbar button."
+}

@@ -1,0 +1,25 @@
+namespace map_engine;
+
+struct BoundingBoxFb {
+  min_x: int;
+  min_y: int;
+  max_x: int;
+  max_y: int;
+}
+
+table ProvinceFb {
+  id: int;
+  points_x: [int];
+  points_y: [int];
+  bbox: BoundingBoxFb;
+  color_value: int;
+}
+
+table MapDataFb {
+  format_version: int;
+  generated_at_ms: long;
+  provinces: [ProvinceFb];
+  world_bbox: BoundingBoxFb;
+}
+
+root_type MapDataFb;
