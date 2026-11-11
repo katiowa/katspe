@@ -228,9 +228,7 @@ Future<void> showSettingsDialog(
                 
                 // --- SEÇÃO ESCALA DA INTERFACE ---
                 Text(
-                  langController.get('settings_ui_scale') == 'settings_ui_scale' 
-                    ? 'Interface Scale / Escala (Zoom)' 
-                    : langController.get('settings_ui_scale'), 
+                  langController.get('settings_ui_scale'), 
                   style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13)
                 ),
                 const SizedBox(height: 4),

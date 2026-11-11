@@ -89,7 +89,6 @@ mixin _PanelWrappersSection on
 
   Widget _buildTopBarWrapper() {
     return AnimatedBuilder(
-      // Incluímos o _uiScale para forçar a renderização do Wrapper quando o slider for movido!
       animation: Listenable.merge([_panelController, _uiScale]),
       builder: (context, _) => DraggablePanelWrapper(
         id: 'topbar',
@@ -137,7 +136,7 @@ mixin _PanelWrappersSection on
             onImportProp: () async {
               final size = MediaQuery.of(context).size;
               final res = await FilePicker.pickFile(type: FileType.image);
-              if (!mounted) return;
+              if (!context.mounted) return;
               if (res != null && res.path != null) {
                 final centerScreen = Offset(size.width / 2, size.height / 2);
                 final camera = CameraTransform(panOffset: _panOffset.value, zoomScale: _zoom.value);
@@ -243,13 +242,62 @@ mixin _PanelWrappersSection on
               if (converterName != null) {
                 final info = await _mapRepo.storage.getConverterDisplayInfo(converterName);
                 final exts = info?.supportedExtensions ?? [];
-                final res = await FilePicker.pickFile(type: FileType.any);
-                if (res != null && res.path != null) {
-                  final path = res.path!;
-                  final fileName = path.split(Platform.pathSeparator).last;
-                  final ext = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
-                  if (ext.isEmpty || exts.isEmpty || exts.contains(ext)) {
-                    await _mapRepo.importSingleProvinceFile(path, converterName);
+                
+                final files = await FilePicker.pickFiles(type: FileType.any);
+                
+                if (files.isNotEmpty) {
+                  final validPaths = <String>[];
+                  for (final file in files) {
+                    final path = file.path;
+                    if (path == null) continue;
+                    
+                    final fileName = path.split(Platform.pathSeparator).last;
+                    final ext = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
+                    
+                    if (ext == 'zip' || ext.isEmpty || exts.isEmpty || exts.contains(ext)) {
+                      validPaths.add(path);
+                    }
+                  }
+                  
+                  if (validPaths.isNotEmpty) {
+                    if (!context.mounted) return;
+                    final messenger = ScaffoldMessenger.of(context);
+                    
+                    messenger.showSnackBar(SnackBar(
+                      content: Text(_lang.get('import_loading')),
+                      duration: const Duration(days: 1),
+                    ));
+                    
+                    try {
+                      final result = await _mapRepo.importMultipleProvinces(validPaths, converterName);
+                      
+                      if (!context.mounted) return;
+                      messenger.hideCurrentSnackBar();
+                      
+                      if (result.success > 0 && result.failed == 0) {
+                        messenger.showSnackBar(SnackBar(
+                          content: Text(_lang.get('import_success')),
+                          backgroundColor: AppTheme.success,
+                        ));
+                      } else if (result.success > 0 && result.failed > 0) {
+                        messenger.showSnackBar(SnackBar(
+                          content: Text('${_lang.get('import_success')} (${result.failed} skipped)'),
+                          backgroundColor: AppTheme.accent,
+                        ));
+                      } else {
+                        messenger.showSnackBar(SnackBar(
+                          content: Text(_lang.get('import_error').replaceAll('{error}', 'Invalid files/format')),
+                          backgroundColor: AppTheme.danger,
+                        ));
+                      }
+                    } catch (e) {
+                      if (!context.mounted) return;
+                      messenger.hideCurrentSnackBar();
+                      messenger.showSnackBar(SnackBar(
+                        content: Text(_lang.get('import_error').replaceAll('{error}', 'Fatal Crash')),
+                        backgroundColor: AppTheme.danger,
+                      ));
+                    }
                   }
                 }
               }

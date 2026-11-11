@@ -36,3 +36,4 @@ flutter:
     - engine/languages/flags/
     - engine/converters/map-editor/
     - lib/plugins/packages/dashboard/plugin.json
+    - version.json

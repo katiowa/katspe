@@ -15,7 +15,6 @@ mixin _DialogHandlersSection on
       cullingMargin: _cullingMargin,
       uiScale: _uiScale,
     );
-    // A mágica agora acontece pelo Listener do _uiScale, não precisamos mais forçar o update manual aqui!
     await _prefs.setCullingEnabled(_enableFrustumCulling.value);
     await _prefs.setCullingMargin(_cullingMargin.value);
     await _prefs.setUiScale(_uiScale.value);
@@ -90,6 +89,25 @@ mixin _DialogHandlersSection on
           final session = await _mapRepo.ensureActiveSession(converter);
           await _refreshPoiCategories(session);
           _saveWorkspace();
+        },
+        onLoadNativeCache: (path) async {
+          try {
+            await _mapRepo.importNativeCache(path);
+            _saveWorkspace(); 
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(_lang.get('import_native_success')), 
+                backgroundColor: AppTheme.success
+              ));
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(_lang.get('import_native_error').replaceAll('{error}', e.toString())), 
+                backgroundColor: AppTheme.danger
+              ));
+            }
+          }
         },
         onLoadBackground: (path) async {
           final copiedPath = await _mapRepo.storage.saveBackground(path);

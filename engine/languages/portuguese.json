@@ -16,6 +16,7 @@
   "settings_culling_extreme": "Extremo",
   "settings_culling_minimum": "Mínimo",
   "settings_culling_balanced": "Equilibrado",
+  "settings_ui_scale": "Escala da Interface (Zoom)",
   "settings_confirm": "Confirmar e Fechar",
 
   "topbar_title": "KatsPE",
@@ -89,6 +90,11 @@
   "dialog_load_browse": "Procurar",
   "dialog_load_bg_file": "Imagem de Fundo Opcional (.png/.jpg)",
   "dialog_load_confirm": "Confirmar e Carregar",
+
+  "dialog_load_native_cache": "Cache de Mapa Nativo (map_cache.bin)",
+  "dialog_load_native_cache_btn": "Carregar Binário",
+  "import_native_success": "Cache nativo carregado com sucesso!",
+  "import_native_error": "Falha ao carregar arquivo binário: {error}",
 
   "dialog_overlap_title": "Sobreposição Detectada",
   "dialog_overlap_desc": "A província cruza com as listadas abaixo (Pode ser um falso positivo da Bounding Box). Selecione quais deseja RECORTAR:",
@@ -164,5 +170,10 @@
   "lang_delete_confirm_title": "Excluir Idioma",
   "lang_delete_confirm_desc": "Tem certeza que deseja excluir \"{name}\"? Este pacote de idioma e sua bandeira serão removidos permanentemente.",
   "btn_delete": "Excluir",
-  "delete_success": "Excluído com sucesso!"
+  "delete_success": "Excluído com sucesso!",
+  
+  "update_available_title": "Atualização Disponível",
+  "update_available_desc": "Uma nova versão do KatsPE está disponível! Você está usando a versão {local}, mas a {remote} já foi lançada. Atualize para receber as últimas novidades e correções de bugs.",
+  "btn_ignore": "Ignorar",
+  "btn_update": "Ir para Lançamentos"
 }

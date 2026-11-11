@@ -22,11 +22,12 @@ class ProjectDashboardDialog extends StatefulWidget {
   final EngineStorageManager storage;
   final VoidCallback onClearWorkspace;
   final void Function(String path) onLoadMap;
+  final void Function(String path) onLoadNativeCache;
   final void Function(String path) onLoadBackground;
 
   const ProjectDashboardDialog({
     super.key, required this.lang, required this.prefs, required this.storage,
-    required this.onClearWorkspace, required this.onLoadMap, required this.onLoadBackground,
+    required this.onClearWorkspace, required this.onLoadMap, required this.onLoadNativeCache, required this.onLoadBackground,
   });
 
   @override
@@ -40,11 +41,12 @@ class _ProjectDashboardDialogState extends State<ProjectDashboardDialog> {
   String? _initialConverter;
   String? _pendingConverter;
   String? _pendingMapPath;
+  String? _pendingNativeCachePath;
   String? _pendingBgPath;
   
   bool _isImportingConverter = false;
 
-  bool get _hasPendingChanges => _pendingMapPath != null || _pendingBgPath != null || (_pendingConverter != _initialConverter);
+  bool get _hasPendingChanges => _pendingMapPath != null || _pendingNativeCachePath != null || _pendingBgPath != null || (_pendingConverter != _initialConverter);
 
   @override
   void initState() {
@@ -66,15 +68,33 @@ class _ProjectDashboardDialogState extends State<ProjectDashboardDialog> {
     }
   }
 
-  void _revertChanges() => setState(() { _pendingConverter = _initialConverter; _pendingMapPath = null; _pendingBgPath = null; });
+  void _revertChanges() => setState(() { 
+    _pendingConverter = _initialConverter; 
+    _pendingMapPath = null; 
+    _pendingNativeCachePath = null;
+    _pendingBgPath = null; 
+  });
 
   void _confirmChanges() {
     if (_pendingConverter != _initialConverter) {
       widget.prefs.setSelectedConverter(_pendingConverter);
       _initialConverter = _pendingConverter;
     }
-    if (_pendingMapPath != null) { widget.onLoadMap(_pendingMapPath!); _pendingMapPath = null; }
-    if (_pendingBgPath != null) { widget.onLoadBackground(_pendingBgPath!); _pendingBgPath = null; }
+    
+    // Executa ou o Binário ou o Mapa Tradicional (para evitar sobrescritas conflitantes simultâneas)
+    if (_pendingNativeCachePath != null) { 
+      widget.onLoadNativeCache(_pendingNativeCachePath!); 
+      _pendingNativeCachePath = null; 
+    } else if (_pendingMapPath != null) { 
+      widget.onLoadMap(_pendingMapPath!); 
+      _pendingMapPath = null; 
+    }
+    
+    if (_pendingBgPath != null) { 
+      widget.onLoadBackground(_pendingBgPath!); 
+      _pendingBgPath = null; 
+    }
+    
     setState(() {});
   }
 
@@ -186,7 +206,6 @@ class _ProjectDashboardDialogState extends State<ProjectDashboardDialog> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final screenSize = MediaQuery.of(context).size;
-            // Se a largura for menor que 620px (ex: celular em pé), muda para layout vertical com abas no topo
             final isNarrow = constraints.maxWidth < 620 || screenSize.width < 620;
 
             final Widget detailContent = Expanded(
@@ -261,10 +280,14 @@ class _ProjectDashboardDialogState extends State<ProjectDashboardDialog> {
         }
         return TabScenario(
           key: const ValueKey(1), lang: widget.lang, 
-          pendingMapPath: _pendingMapPath, pendingBgPath: _pendingBgPath, 
+          pendingMapPath: _pendingMapPath, 
+          pendingNativeCachePath: _pendingNativeCachePath,
+          pendingBgPath: _pendingBgPath, 
           allowedExtensions: exts,
           isNarrow: isNarrow,
-          onMapSelected: (p) => setState(() => _pendingMapPath = p), 
+          // Ao selecionar um, remove o outro, para não confundir o commit state
+          onMapSelected: (p) => setState(() { _pendingMapPath = p; _pendingNativeCachePath = null; }), 
+          onNativeCacheSelected: (p) => setState(() { _pendingNativeCachePath = p; _pendingMapPath = null; }),
           onBgSelected: (p) => setState(() => _pendingBgPath = p)
         );
       case 2: return TabProcedural(key: const ValueKey(2), lang: widget.lang, isNarrow: isNarrow);

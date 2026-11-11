@@ -72,6 +72,56 @@ mixin _CacheIO on _EngineStorageBase, _PathsIO {
     }
   }
 
+  /// NOVO: Importação Nativa do Binário usando Swap Atômico (A/B)
+  Future<EngineMapData> importNativeMapCache(String sourcePath) async {
+    final sourceFile = File(sourcePath);
+    if (!await sourceFile.exists()) {
+      throw Exception("Source file does not exist.");
+    }
+    
+    // 1. Lemos e validamos os bytes numa Isolate.
+    // Se não for um cache gerado pelo FlatBuffers, o parser (_parseFlatBuffer) falhará
+    // estourando uma exception antes de chegarmos a encostar no arquivo final.
+    final bytes = await sourceFile.readAsBytes();
+    final parsedData = await Isolate.run(() => _parseFlatBuffer(bytes));
+
+    final destFile = await _mapCacheFile;
+    // O nome do arquivo backup usará .old.bin, mantendo a extensão segura pro Windows
+    final backupFile = File('${destFile.path}.old.bin');
+
+    if (!await destFile.parent.exists()) {
+      await destFile.parent.create(recursive: true);
+    }
+
+    bool backupCreated = false;
+    try {
+      // 2. Criação do backup caso já exista o arquivo oficial
+      if (await destFile.exists()) {
+        await destFile.rename(backupFile.path);
+        backupCreated = true;
+      }
+      
+      // 3. Efetivação
+      await sourceFile.copy(destFile.path);
+
+      // 4. Sucesso: Deleta backup
+      if (backupCreated && await backupFile.exists()) {
+        await backupFile.delete();
+      }
+
+      return parsedData;
+    } catch (e) {
+      // Falha: Estratégia de Rollback
+      if (await destFile.exists()) {
+        await destFile.delete();
+      }
+      if (backupCreated && await backupFile.exists()) {
+        await backupFile.rename(destFile.path);
+      }
+      throw Exception('Atomic swap failed: $e');
+    }
+  }
+
   static Uint8List _buildFlatBuffer(EngineMapData data) {
     final provincesFb = data.provinces.map((p) {
       return ProvinceFbObjectBuilder(

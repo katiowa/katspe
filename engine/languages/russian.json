@@ -16,6 +16,7 @@
   "settings_culling_extreme": "Экстремально",
   "settings_culling_minimum": "Минимум",
   "settings_culling_balanced": "Сбалансировано",
+  "settings_ui_scale": "Масштаб интерфейса (Zoom)",
   "settings_confirm": "Подтвердить и закрыть",
 
   "topbar_title": "KatsPE",
@@ -89,6 +90,11 @@
   "dialog_load_browse": "Обзор",
   "dialog_load_bg_file": "Доп. фоновое изображение (.png/.jpg)",
   "dialog_load_confirm": "Подтвердить и загрузить",
+
+  "dialog_load_native_cache": "Нативный кэш карты (map_cache.bin)",
+  "dialog_load_native_cache_btn": "Загрузить бинарник",
+  "import_native_success": "Нативный кэш успешно загружен!",
+  "import_native_error": "Не удалось загрузить бинарный файл: {error}",
 
   "dialog_overlap_title": "Обнаружено наложение",
   "dialog_overlap_desc": "Провинция пересекается с перечисленными ниже (возможно ложное срабатывание Bounding Box). Выберите, какие из них ОБРЕЗАТЬ (CLIP):",
@@ -164,5 +170,10 @@
   "lang_delete_confirm_title": "Удаление языка",
   "lang_delete_confirm_desc": "Вы уверены, что хотите удалить \"{name}\"? Этот языковой пакет и его флаг будут навсегда удалены.",
   "btn_delete": "Удалить",
-  "delete_success": "Успешно удалено!"
+  "delete_success": "Успешно удалено!",
+  
+  "update_available_title": "Доступно обновление",
+  "update_available_desc": "Доступна новая версия KatsPE! Вы используете версию {local}, но уже выпущена {remote}. Пожалуйста, обновитесь, чтобы получить последние функции и исправления ошибок.",
+  "btn_ignore": "Игнорировать",
+  "btn_update": "Перейти к релизам"
 }

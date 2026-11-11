@@ -16,6 +16,7 @@
   "settings_culling_extreme": "Extremo",
   "settings_culling_minimum": "Mínimo",
   "settings_culling_balanced": "Equilibrado",
+  "settings_ui_scale": "Escala de la Interfaz (Zoom)",
   "settings_confirm": "Confirmar y Cerrar",
 
   "topbar_title": "KatsPE",
@@ -90,6 +91,11 @@
   "dialog_load_bg_file": "Imagen de Fondo opcional (.png/.jpg)",
   "dialog_load_confirm": "Confirmar y Cargar",
 
+  "dialog_load_native_cache": "Caché de Mapa Nativo (map_cache.bin)",
+  "dialog_load_native_cache_btn": "Cargar Binario",
+  "import_native_success": "¡Caché nativo cargado exitosamente!",
+  "import_native_error": "Error al cargar el archivo binario: {error}",
+
   "dialog_overlap_title": "Superposición Detectada",
   "dialog_overlap_desc": "La provincia se cruza con las listadas a continuación (Podría ser un falso positivo del Bounding Box). Selecciona cuáles RECORTAR (CLIP):",
   "dialog_overlap_province": "Provincia {id}",
@@ -133,7 +139,7 @@
   "tooltip_done": "Confirmar Disposición",
   "quick_actions_title": "Acciones Rápidas",
   "quick_actions_options": "Opciones del Menú de Acciones",
-  "quick_actions_move": "Arrastrar Menú",
+  "quick_actions_move": "Arrastar Menú",
   "quick_actions_direction": "Dirección del Menú: {dir}",
   "quick_actions_resize": "Redimensionar Menú",
   "direction_up": "Arriba",
@@ -164,5 +170,10 @@
   "lang_delete_confirm_title": "Eliminar Idioma",
   "lang_delete_confirm_desc": "¿Estás seguro de que quieres eliminar \"{name}\"? Este paquete de idioma y su bandera serán eliminados permanentemente.",
   "btn_delete": "Eliminar",
-  "delete_success": "¡Eliminado exitosamente!"
+  "delete_success": "¡Eliminado exitosamente!",
+  
+  "update_available_title": "Actualización Disponible",
+  "update_available_desc": "¡Una nueva versión de KatsPE está disponible! Estás usando la versión {local}, pero la {remote} ya fue lanzada. Actualiza para recibir las últimas novedades y correcciones de errores.",
+  "btn_ignore": "Ignorar",
+  "btn_update": "Ir a Lanzamientos"
 }

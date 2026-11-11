@@ -15,6 +15,7 @@ import '../../api/lua/lua_value_utils.dart';
 import '../../core/app_preferences.dart';
 import '../../core/language_controller.dart';
 import '../../core/engine_context.dart';
+import '../../core/update_checker_service.dart';
 import '../../data/background_image_controller.dart';
 import '../../data/map_repository.dart';
 import '../../data/props_controller.dart';
@@ -216,12 +217,18 @@ class _MapEditorScreenState extends _MapEditorScreenStateBase
     
     _uiScale.addListener(_applyUiScale);
 
-    _initializeEngine();
+    // CORREÇÃO DO TEMPO (TIMING):
+    // Esperamos a engine carregar TUDO (incluindo o _lang.init() que lê os JSONs)
+    // para SÓ ENTÃO chamar o verificador de atualização com o LanguageController populado.
+    _initializeEngine().then((_) {
+      if (mounted) {
+        UpdateCheckerService.checkForUpdates(context, _lang);
+      }
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       
-      // Lê a largura exata do frame ativo (funciona perfeitamente com o DevicePreview)
       final screenWidth = MediaQuery.of(context).size.width;
       final isNarrow = screenWidth < 750;
       
@@ -229,11 +236,8 @@ class _MapEditorScreenState extends _MapEditorScreenStateBase
       final double sideBarWidth = isNarrow ? 46.0 : 56.0;
       final double propertiesWidth = isNarrow ? 250.0 : 300.0;
 
-      // TopBar e Toolbar (esquerda) nascem sempre abertas para uso imediato
       _panelController.initPanel('topbar', Rect.fromLTWH(0, 0, 800, topBarHeight), initialDock: DockPosition.top, isCollapsed: false);
       _panelController.initPanel('sidebar', Rect.fromLTWH(0, topBarHeight, sideBarWidth, 320), initialDock: DockPosition.left, isCollapsed: false);
-      
-      // Painel de Propriedades (direita) nasce fechado se a tela for estreita (mobile), e aberto se for larga (PC)
       _panelController.initPanel('properties', Rect.fromLTWH(500, topBarHeight, propertiesWidth, 500), initialDock: DockPosition.right, isCollapsed: isNarrow);
       
       _applyUiScale();

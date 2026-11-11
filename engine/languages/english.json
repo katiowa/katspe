@@ -16,6 +16,7 @@
   "settings_culling_extreme": "Extreme",
   "settings_culling_minimum": "Minimum",
   "settings_culling_balanced": "Balanced",
+  "settings_ui_scale": "Interface Scale (Zoom)",
   "settings_confirm": "Confirm & Close",
 
   "topbar_title": "KatsPE",
@@ -89,6 +90,11 @@
   "dialog_load_browse": "Browse",
   "dialog_load_bg_file": "Optional Background Image (.png/.jpg)",
   "dialog_load_confirm": "Confirm and Load",
+
+  "dialog_load_native_cache": "Native Map Cache (map_cache.bin)",
+  "dialog_load_native_cache_btn": "Load Binary",
+  "import_native_success": "Native cache loaded successfully!",
+  "import_native_error": "Failed to load binary file: {error}",
 
   "dialog_overlap_title": "Overlap Detected",
   "dialog_overlap_desc": "The province crosses paths with the ones listed below (Might be a Bounding Box false positive). Select which ones to CLIP:",
@@ -164,5 +170,10 @@
   "lang_delete_confirm_title": "Delete Language",
   "lang_delete_confirm_desc": "Are you sure you want to delete \"{name}\"? This language pack and its flag will be permanently removed.",
   "btn_delete": "Delete",
-  "delete_success": "Successfully deleted!"
+  "delete_success": "Successfully deleted!",
+  
+  "update_available_title": "Update Available",
+  "update_available_desc": "A new version of KatsPE is available! You are using {local}, but {remote} is out. Please update to get the latest features and bug fixes.",
+  "btn_ignore": "Ignore",
+  "btn_update": "Go to Releases"
 }

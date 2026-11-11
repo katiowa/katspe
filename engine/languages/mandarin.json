@@ -16,6 +16,7 @@
   "settings_culling_extreme": "极限",
   "settings_culling_minimum": "最低",
   "settings_culling_balanced": "平衡",
+  "settings_ui_scale": "界面缩放 (Zoom)",
   "settings_confirm": "确认并关闭",
 
   "topbar_title": "KatsPE",
@@ -89,6 +90,11 @@
   "dialog_load_browse": "浏览",
   "dialog_load_bg_file": "可选背景图像 (.png/.jpg)",
   "dialog_load_confirm": "确认并加载",
+
+  "dialog_load_native_cache": "原生本地地图缓存 (map_cache.bin)",
+  "dialog_load_native_cache_btn": "加载二进制文件",
+  "import_native_success": "原生缓存加载成功！",
+  "import_native_error": "加载二进制文件失败：{error}",
 
   "dialog_overlap_title": "检测到重叠",
   "dialog_overlap_desc": "该省份与下列省份存在重叠（可能是包围盒的误报）。请选择要裁剪 (CLIP) 哪些省份：",
@@ -164,5 +170,10 @@
   "lang_delete_confirm_title": "删除语言",
   "lang_delete_confirm_desc": "您确定要删除 \"{name}\" 吗？此语言包及其标志将被永久移除。",
   "btn_delete": "删除",
-  "delete_success": "删除成功！"
+  "delete_success": "删除成功！",
+
+  "update_available_title": "有可用的更新",
+  "update_available_desc": "KatsPE 的新版本已发布！您当前使用的是 {local} 版，但 {remote} 版已推出。请更新以获取最新功能和错误修复。",
+  "btn_ignore": "忽略",
+  "btn_update": "前往发布页面"
 }

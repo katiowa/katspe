@@ -75,7 +75,9 @@ class _TabProceduralState extends State<TabProcedural> {
               ),
               onPressed: _consentGiven ? () async {
                 final url = Uri.parse('https://github.com/Thomas-Holtvedt/opengs-maptool');
-                if (await canLaunchUrl(url)) await launchUrl(url, mode: LaunchMode.externalApplication);
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                }
               } : null,
               icon: const Icon(Icons.open_in_new, size: 16), 
               label: Text(widget.lang.get('opengs_btn'), style: const TextStyle(fontSize: 12)),

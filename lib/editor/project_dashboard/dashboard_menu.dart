@@ -33,7 +33,8 @@ class DashboardMenu extends StatelessWidget {
                   children: [
                     _narrowItem(0, Icons.create_new_folder_outlined, lang.get('topbar_new_project')),
                     _narrowItem(1, Icons.map_outlined, lang.get('topbar_scenario')),
-                    _narrowItem(2, Icons.auto_fix_high, lang.get('opengs_title')),
+                    // Desativamos apenas este botão passando isDisabled: true
+                    _narrowItem(2, Icons.auto_fix_high, lang.get('opengs_title'), isDisabled: true),
                     _narrowItem(3, Icons.extension_outlined, lang.get('dashboard_converters_title')),
                   ],
                 ),
@@ -85,7 +86,8 @@ class DashboardMenu extends StatelessWidget {
                 children: [
                   _menuItem(0, Icons.create_new_folder_outlined, lang.get('topbar_new_project')),
                   _menuItem(1, Icons.map_outlined, lang.get('topbar_scenario')),
-                  _menuItem(2, Icons.auto_fix_high, lang.get('opengs_title')),
+                  // Desativamos apenas este botão passando isDisabled: true
+                  _menuItem(2, Icons.auto_fix_high, lang.get('opengs_title'), isDisabled: true),
                   _menuItem(3, Icons.extension_outlined, lang.get('dashboard_converters_title')),
                 ],
               ),
@@ -108,7 +110,7 @@ class DashboardMenu extends StatelessWidget {
     );
   }
 
-  Widget _narrowItem(int index, IconData icon, String title) {
+  Widget _narrowItem(int index, IconData icon, String title, {bool isDisabled = false}) {
     final isActive = activeTab == index;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -116,7 +118,7 @@ class DashboardMenu extends StatelessWidget {
         message: title,
         child: InkWell(
           borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-          onTap: () => onTabChanged(index),
+          onTap: isDisabled ? null : () => onTabChanged(index),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
@@ -127,12 +129,12 @@ class DashboardMenu extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 16, color: isActive ? AppTheme.accent : AppTheme.textSecondary),
+                Icon(icon, size: 16, color: isDisabled ? AppTheme.textDisabled : (isActive ? AppTheme.accent : AppTheme.textSecondary)),
                 const SizedBox(width: 6),
                 Text(
                   title, 
                   style: TextStyle(
-                    color: isActive ? AppTheme.accent : AppTheme.textPrimary, 
+                    color: isDisabled ? AppTheme.textDisabled : (isActive ? AppTheme.accent : AppTheme.textPrimary), 
                     fontSize: 12, 
                     fontWeight: isActive ? FontWeight.bold : FontWeight.normal
                   )
@@ -145,7 +147,7 @@ class DashboardMenu extends StatelessWidget {
     );
   }
 
-  Widget _menuItem(int index, IconData icon, String title) {
+  Widget _menuItem(int index, IconData icon, String title, {bool isDisabled = false}) {
     final isActive = activeTab == index;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -154,15 +156,28 @@ class DashboardMenu extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppTheme.radiusSm),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-          onTap: () => onTabChanged(index),
+          onTap: isDisabled ? null : () => onTabChanged(index),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(border: isActive ? Border.all(color: AppTheme.accent.withValues(alpha: 0.5)) : null, borderRadius: BorderRadius.circular(AppTheme.radiusSm)),
+            decoration: BoxDecoration(
+              border: isActive ? Border.all(color: AppTheme.accent.withValues(alpha: 0.5)) : null, 
+              borderRadius: BorderRadius.circular(AppTheme.radiusSm)
+            ),
             child: Row(
               children: [
-                Icon(icon, size: 18, color: isActive ? AppTheme.accent : AppTheme.textSecondary),
+                Icon(icon, size: 18, color: isDisabled ? AppTheme.textDisabled : (isActive ? AppTheme.accent : AppTheme.textSecondary)),
                 const SizedBox(width: 12),
-                Expanded(child: Text(title, style: TextStyle(color: isActive ? AppTheme.accent : AppTheme.textPrimary, fontSize: 13, fontWeight: isActive ? FontWeight.w600 : FontWeight.normal), overflow: TextOverflow.ellipsis)),
+                Expanded(
+                  child: Text(
+                    title, 
+                    style: TextStyle(
+                      color: isDisabled ? AppTheme.textDisabled : (isActive ? AppTheme.accent : AppTheme.textPrimary), 
+                      fontSize: 13, 
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.normal
+                    ), 
+                    overflow: TextOverflow.ellipsis
+                  )
+                ),
               ],
             ),
           ),

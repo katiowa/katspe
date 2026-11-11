@@ -7,15 +7,24 @@ import '../../theme/app_theme.dart';
 class TabScenario extends StatelessWidget {
   final LanguageController lang;
   final String? pendingMapPath;
+  final String? pendingNativeCachePath;
   final String? pendingBgPath;
   final List<String> allowedExtensions;
   final ValueChanged<String> onMapSelected;
+  final ValueChanged<String> onNativeCacheSelected;
   final ValueChanged<String> onBgSelected;
   final bool isNarrow;
 
   const TabScenario({
-    super.key, required this.lang, required this.pendingMapPath, required this.pendingBgPath,
-    required this.allowedExtensions, required this.onMapSelected, required this.onBgSelected,
+    super.key, 
+    required this.lang, 
+    required this.pendingMapPath, 
+    required this.pendingNativeCachePath,
+    required this.pendingBgPath,
+    required this.allowedExtensions, 
+    required this.onMapSelected, 
+    required this.onNativeCacheSelected,
+    required this.onBgSelected,
     this.isNarrow = false,
   });
 
@@ -41,6 +50,8 @@ class TabScenario extends StatelessWidget {
             )
           ),
           const SizedBox(height: 16),
+          
+          // IMPORTAÇÃO DE MAPA VIA CONVERSOR
           _buildCard(
             title: mapFileLabel, 
             icon: Icons.map, 
@@ -63,6 +74,24 @@ class TabScenario extends StatelessWidget {
             }
           ),
           const SizedBox(height: 12),
+          
+          // IMPORTAÇÃO DE CACHE NATIVO BINÁRIO (NOVO)
+          _buildCard(
+            title: lang.get('dialog_load_native_cache'), 
+            icon: Icons.memory, 
+            pendingPath: pendingNativeCachePath, 
+            buttonText: lang.get('dialog_load_native_cache_btn'), 
+            onPressed: () async {
+              // Binário puro, qualquer formato de arquivo, validação por conteúdo
+              final res = await FilePicker.pickFile(type: FileType.any);
+              if (res != null && res.path != null) {
+                onNativeCacheSelected(res.path!);
+              }
+            }
+          ),
+          const SizedBox(height: 12),
+          
+          // IMAGEM DE FUNDO
           _buildCard(
             title: lang.get('dialog_load_bg_file'), 
             icon: Icons.image_outlined, 

@@ -157,4 +157,33 @@ mixin _ImportIO on _EngineStorageBase, _PathsIO {
 
     return converterName;
   }
+
+  /// Extrai arquivos de texto de um pacote .zip em uma Isolate (Thread) separada.
+  /// Isso garante que a UI não congele ao processar ZIPs massivos contendo milhares de províncias.
+  Future<List<String>> extractTextFilesFromZip(String zipPath) async {
+    return await Isolate.run(() {
+      final bytes = File(zipPath).readAsBytesSync();
+      final archive = ZipDecoder().decodeBytes(bytes);
+      final contents = <String>[];
+
+      for (final file in archive) {
+        if (file.isFile) {
+          final normalizedName = file.name.replaceAll('\\', '/');
+          final name = normalizedName.split('/').last;
+          
+          // Ignora lixo gerado por SO e pastas invisíveis
+          if (file.name.contains('__MACOSX') || name.startsWith('._') || name == '.DS_Store' || name == 'Thumbs.db') {
+            continue;
+          }
+          
+          try {
+            final data = file.content as List<int>;
+            // allowMalformed impede que encodings não-UTF8 causem crash absoluto
+            contents.add(utf8.decode(data, allowMalformed: true));
+          } catch (_) {}
+        }
+      }
+      return contents;
+    });
+  }
 }

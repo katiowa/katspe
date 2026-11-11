@@ -24,6 +24,25 @@ mixin _LuaInterop on ChangeNotifier, _HistoryManager {
     return session;
   }
 
+  /// NOVO: Aplica o binário (já validado pela storage) diretamente no estado em memória
+  Future<void> importNativeCache(String filePath) async {
+    final repo = this as MapRepository;
+    repo._setBusy(true);
+    try {
+      final newData = await repo.storage.importNativeMapCache(filePath);
+      
+      // Limpa histórico de undo/redo e o SpatialGrid antigo
+      repo.clearMap(); 
+      
+      repo._mapData = newData;
+      repo._rebuildSpatialIndex();
+      
+      notifyListeners();
+    } finally {
+      repo._setBusy(false);
+    }
+  }
+
   Future<void> importMapFile(String filePath, String converterName) async {
     final repo = this as MapRepository;
     repo._setBusy(true);
@@ -114,36 +133,140 @@ mixin _LuaInterop on ChangeNotifier, _HistoryManager {
     }
   }
 
-  Future<void> importSingleProvinceFile(String filePath, String converterName) async {
+  Future<({int success, int failed})> importMultipleProvinces(List<String> filePaths, String converterName) async {
     final repo = this as MapRepository;
     repo._setBusy(true);
+    int success = 0;
+    int failed = 0;
+    
     try {
-      final rawText = await File(filePath).readAsString();
       final session = await ensureActiveSession(converterName);
+      final newProvinces = <ProvinceModel>[];
+      int nextId = repo._nextAvailableId();
+      
+      Future<void> processContent(String rawText) async {
+        try {
+          final trimmed = rawText.trim();
+          if (trimmed.isEmpty) {
+            failed++;
+            return;
+          }
 
-      final result = await session.invoke('import_province', {'raw_text': rawText});
-      if (result == null || result['ok'] != true) {
-        throw Exception('Converter "$converterName" não suporta importar província individual.');
+          List<int>? xs;
+          List<int>? ys;
+
+          try {
+            final result = await session.invoke('import_province', {'raw_text': trimmed});
+            if (result != null && result['ok'] == true) {
+              final rawXs = result['xs'];
+              final rawYs = result['ys'];
+              if (rawXs is List && rawYs is List) {
+                xs = rawXs.map((e) => (e as num).toInt()).toList();
+                ys = rawYs.map((e) => (e as num).toInt()).toList();
+              }
+            }
+          } catch (_) {}
+
+          if (xs == null || ys == null || xs.isEmpty || ys.isEmpty) {
+            if (trimmed.contains(';')) {
+              final parts = trimmed.split(';');
+              if (parts.length >= 2) {
+                final rawXList = parts[0].replaceAll(RegExp(r'[\r\n]'), '').split(',');
+                final rawYList = parts[1].replaceAll(RegExp(r'[\r\n]'), '').split(',');
+                
+                final parsedXs = <int>[];
+                for (final s in rawXList) {
+                  final n = int.tryParse(s.trim());
+                  if (n != null) parsedXs.add(n);
+                }
+
+                final parsedYs = <int>[];
+                for (final s in rawYList) {
+                  final n = int.tryParse(s.trim());
+                  if (n != null) parsedYs.add(n);
+                }
+
+                if (parsedXs.length >= 3 && parsedXs.length == parsedYs.length) {
+                  xs = parsedXs;
+                  ys = parsedYs;
+                }
+              }
+            } else {
+              final lines = trimmed.split(RegExp(r'\r?\n')).where((l) => l.trim().isNotEmpty).toList();
+              if (lines.length >= 2) {
+                final rawXList = lines[0].split(',');
+                final rawYList = lines[1].split(',');
+
+                final parsedXs = <int>[];
+                for (final s in rawXList) {
+                  final n = int.tryParse(s.trim());
+                  if (n != null) parsedXs.add(n);
+                }
+
+                final parsedYs = <int>[];
+                for (final s in rawYList) {
+                  final n = int.tryParse(s.trim());
+                  if (n != null) parsedYs.add(n);
+                }
+
+                if (parsedXs.length >= 3 && parsedXs.length == parsedYs.length) {
+                  xs = parsedXs;
+                  ys = parsedYs;
+                }
+              }
+            }
+          }
+
+          if (xs != null && ys != null && xs.length >= 3 && xs.length == ys.length) {
+            newProvinces.add(ProvinceModel.fromPoints(
+              id: nextId++,
+              xs: xs,
+              ys: ys,
+            ));
+            success++;
+          } else {
+            failed++;
+          }
+        } catch (_) {
+          failed++;
+        }
       }
 
-      final xs = (result['xs'] as List).cast<int>();
-      final ys = (result['ys'] as List).cast<int>();
+      for (final path in filePaths) {
+        final fileName = path.split(Platform.pathSeparator).last;
+        final ext = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
+        
+        if (ext == 'zip') {
+          try {
+            final contents = await repo.storage.extractTextFilesFromZip(path);
+            for (final content in contents) {
+              await processContent(content);
+            }
+          } catch (_) {
+            failed++;
+          }
+        } else {
+          try {
+            final bytes = await File(path).readAsBytes();
+            final content = utf8.decode(bytes, allowMalformed: true);
+            await processContent(content);
+          } catch (_) {
+            failed++;
+          }
+        }
+      }
 
-      final newId = repo._nextAvailableId();
-
-      final newProv = ProvinceModel.fromPoints(
-        id: newId,
-        xs: xs,
-        ys: ys,
-      );
-
-      _pushMapHistory(repo._mapData);
-      repo._mapData = repo._mapData.upsertProvince(newProv);
-      repo._rebuildSpatialIndex();
-      notifyListeners();
-      await repo.storage.saveMapCache(repo._mapData);
+      if (newProvinces.isNotEmpty) {
+        _pushMapHistory(repo._mapData);
+        repo._mapData = repo._mapData.upsertMany(newProvinces);
+        repo._rebuildSpatialIndex();
+        notifyListeners();
+        await repo.storage.saveMapCache(repo._mapData);
+      }
     } finally {
       repo._setBusy(false);
     }
+    
+    return (success: success, failed: failed);
   }
 }
